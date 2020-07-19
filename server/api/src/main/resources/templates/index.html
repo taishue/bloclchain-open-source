@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" class="no-js">
+<head>
+    <meta charset="UTF-8"/>
+    <title>首页 - Coinsthai</title>
+    <script src="//cdn.bootcss.com/jquery/1.12.2/jquery.min.js"></script>
+    <script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script>
+        function hideStatus() {
+            if ($.cookie('auth')) {
+                $('#divLogin').hide();
+                $('#divLogout').show();
+            } else {
+                $('#divLogout').hide();
+                $('#divLogin').show();
+            }
+        }
+
+        $(document).ready(function(){
+            hideStatus();
+
+            $('#btnLogout').on('click', function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '/logout',
+                    dataType: 'json',
+                    success: function() {
+                        console.log('Server logout successfully.');
+                        $.removeCookie('auth');
+                        hideStatus();
+                    },
+                    error: function() {
+                        console.log('Server logout failed.');
+                        $.removeCookie('auth');
+                        hideStatus();
+                    }
+                });
+            });
+
+            $('#btnLogin').on('click', function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/login',
+                    dataType: 'text',
+                    data: {
+                        username: $('#username').val(),
+                        password: $('#password').val()
+                    },
+                    success: function(result) {
+                        var json = $.parseJSON(result);
+                        if(!json.succeed) {
+                            alert(json.message);
+                        } else {
+                            $.cookie('auth', json.data.token, { expires: 7, path: '/'});
+                            hideStatus();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<div>
+    <p><a href="/swagger-ui.html">API DOC</a></p>
+</div>
+<div class="content">
+    <div id="divLogout">
+        <p>欢迎登录用户！</p>
+        <p><a href="javascript:void(0)" id="btnLogout">退出</a></p>
+    </div>
+    <div id="divLogin">
+        <p>欢迎光临，请登录！</p>
+        <form>
+            <p>用户：<input type="text" name="username" id="username" value="test@coinsthai.com"/></p>
+            <p>密码：<input type="password" name="password" id="password" value="coins1@3"/></p>
+            <p><input type="button" name="submit" id="btnLogin" value="登录"/></p>
+        </form>
+    </div>
+    <footer>Copyright &copy; 2018.Coinsthai.com All rights reserved.</footer>
+</div>
+</body>
+</html>

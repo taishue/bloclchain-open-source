@@ -1,0 +1,8 @@
+dependencies {
+    compile project(":service")
+    compile "org.web3j:core:${version_web3j_core}"
+    compile "org.bitcoinj:bitcoinj-core:${version_bitcoinj_core}"
+    compile "wf.bitcoin:JavaBitcoindRpcClient:${version_JavaBitcoindRpcClient}"
+
+    testCompile "junit:junit:$version_junit"
+}

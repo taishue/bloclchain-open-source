@@ -1,0 +1,8 @@
+dependencies {
+    compile project(":pojo")
+
+    compile "com.fasterxml.jackson.core:jackson-databind:$version_fasterxml_jackson"
+    compile "io.swagger:swagger-annotations:$version_swagger"
+
+    testCompile "junit:junit:$version_junit"
+}

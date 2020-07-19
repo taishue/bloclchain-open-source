@@ -1,0 +1,61 @@
+
+// project.ext {
+//     checkstyleConfig = new File(project.rootDir.toString() + "/config/checkstyle.xml")
+
+//     quick = project.hasProperty("quick")
+//     skipCheckStyle = project.hasProperty("skipCheckStyle") || quick
+//     skipPMD = project.hasProperty("skipPMD") || quick
+//     skipCoverage = project.hasProperty("skipCoverage")
+// }
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    //apply plugin: 'project-report'
+
+    sourceCompatibility = 1.8
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+//Ignore Test specific subprojects so that they do not interfere with the main build due to quality.
+// configure(subprojects.findAll { it.name.indexOf("test") < 0 }) {
+//     //Checkstyle is disabled as it does not currently support Java 8 syntax
+//     if (false && !rootProject.skipCheckStyle) {
+//         apply plugin: "checkstyle"
+
+//         checkstyle {
+//             configFile = checkstyleConfig;
+//             ignoreFailures = false
+//         }
+//     }
+
+//     if (!rootProject.skipPMD) {
+//         apply plugin: "pmd"
+//         pmd {
+//             toolVersion = "5.5.1"
+//             sourceSets = [sourceSets.main]
+//             //ruleSets = ["basic", "braces", "coupling", "design", "imports", "unusedcode"]
+//             ruleSets = ['java-basic',
+//                         'java-braces',
+//                         'java-clone',
+//                         'java-design',
+//                         'java-empty',
+//                         'java-finalizers',
+//                         'java-imports',
+//                         'java-strictexception',
+//                         'java-strings',
+//                         'java-typeresolution',
+//                         'java-unnecessary',
+//                         'java-unusedcode'
+//             ]
+//         }
+//     }
+// }

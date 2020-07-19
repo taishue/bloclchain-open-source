@@ -1,0 +1,5 @@
+dependencies {
+    compile "org.apache.commons:commons-lang3:$version_commons_lang3"
+
+    testCompile "junit:junit:$version_junit"
+}

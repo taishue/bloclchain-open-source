@@ -1,0 +1,37 @@
+dependencies {
+    compile project(":vo")
+    compile project(":model")
+    compile project(":repository")
+
+
+    compile "org.springframework:spring-web:$version_spring_framework"
+    compile "org.springframework.boot:spring-boot-starter-data-redis:$version_spring_boot"
+    compile "org.springframework.boot:spring-boot-starter-mail:$version_spring_boot"
+    compile "org.springframework.security:spring-security-core:$version_spring_security"
+    compile "org.thymeleaf:thymeleaf-spring4:$version_thymeleaf"
+    compile "com.google.guava:guava:$version_google_guava"
+    compile "in.clouthink.daas:daas-edm:${version_daas_edm_core}"
+    compile "in.clouthink.daas:daas-edm-email:${version_daas_edm_email}"
+    compile "com.aliyun.openservices:ons-client:${version_aliyun_ons}"
+    compile "com.aliyun.oss:aliyun-sdk-oss:${version_aliyun_oss}"
+    compile "commons-io:commons-io:${version_commons_io}"
+
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$version_spring_boot"
+    testCompile "junit:junit:$version_junit"
+    testCompile "org.mockito:mockito-all:$version_mockito"
+    testCompile "io.github.benas:random-beans:$version_random_beans"
+}
+
+// if (!rootProject.skipCoverage) {
+//     apply from: rootProject.file("config/jacoco_coverage_plugin.gradle")
+
+//     jacoco {
+//         toolVersion = "0.7.7.201606060606"
+//     }
+
+//     checkJacocoCoverage {
+//         lineThreshold = 90
+//         branchThreshold = 90
+//     }
+// }

@@ -1,0 +1,17 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$version_spring_boot")
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    compile project(":service")
+    compile project(":blockchain")
+
+    compile "org.springframework.boot:spring-boot-starter:$version_spring_boot"
+}

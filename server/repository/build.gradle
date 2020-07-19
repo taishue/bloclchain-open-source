@@ -1,0 +1,5 @@
+dependencies {
+    compile project(":model")
+
+    compile("mysql:mysql-connector-java:$verison_mysql_connector")
+}

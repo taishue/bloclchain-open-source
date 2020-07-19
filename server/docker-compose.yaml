@@ -1,0 +1,51 @@
+version: '2'
+services:
+  api:
+    container_name: api
+    build:
+      context: ./
+      dockerfile: api/Dockerfile
+    depends_on:
+      - cache
+      - dbseed
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      JAVA_OPTS: -Xmx256m -Xms128m
+
+  dbseed:
+    container_name: dbseed
+    image: coinsthai/base:dbseed
+    depends_on:
+    - db
+    environment:
+      DB_URL: jdbc:mysql://db/${DB_NAME}${DB_URL_PARAMS}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+
+  db:
+    container_name: db
+    image: coinsthai/base:db
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    ports:
+    - "3306:3306"
+    volumes:
+    - db_home:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+
+  cache:
+    container_name: cache
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+    - cache_home:/data
+
+volumes:
+  db_home:
+  cache_home:

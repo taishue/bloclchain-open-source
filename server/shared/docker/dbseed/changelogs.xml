@@ -1,0 +1,553 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet author="" id="init-01">
+        <createTable tableName="t_user">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(128)"/>
+            <column name="email" type="VARCHAR(128)"/>
+            <column name="cellphone" type="VARCHAR(24)"/>
+            <column name="locale" type="VARCHAR(24)"/>
+            <column name="password" type="VARCHAR(128)"/>
+            <column name="password_salt" type="VARCHAR(32)"/>
+            <column defaultValueBoolean="true" name="active" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="robot" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="last_logged_at" type="datetime"/>
+            <column name="last_logged_ip" type="VARCHAR(32)"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_user"/>
+        <addUniqueConstraint columnNames="email" constraintName="uk_email" tableName="t_user"/>
+        <addUniqueConstraint columnNames="cellphone" constraintName="uk_cellphone" tableName="t_user"/>
+    </changeSet>
+
+    <changeSet author="" id="init-02">
+        <createTable tableName="t_coin">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(24)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="full_name" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="category" remarks="0 - DIGITAL&#10;1 - LEGAL" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="base" remarks="0 Non Base currency&#10;1 Base currency"
+                    type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="unit" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="priority" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token_on" type="VARCHAR(36)"/>
+            <column name="contract" type="VARCHAR(255)"/>
+            <column defaultValueBoolean="false" name="active" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_coin"/>
+        <addUniqueConstraint columnNames="name" constraintName="uk_name" tableName="t_coin"/>
+        <addUniqueConstraint columnNames="full_name" constraintName="uk_full_name" tableName="t_coin"/>
+        <addForeignKeyConstraint baseColumnNames="token_on" baseTableName="t_coin" constraintName="fk_coin_token_on"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_coin"/>
+    </changeSet>
+
+    <changeSet author="" id="init-03">
+        <createTable tableName="t_wallet">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coin_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="available_balance" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="frozen_balance" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="pending_balance" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="private_key" type="VARCHAR(512)"/>
+            <column name="guid" type="VARCHAR(36)"/>
+            <column name="password" type="VARCHAR(128)"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_wallet"/>
+        <addUniqueConstraint columnNames="user_id, coin_id" constraintName="uk_wallet_user_coin" tableName="t_wallet"/>
+        <addForeignKeyConstraint baseColumnNames="coin_id" baseTableName="t_wallet" constraintName="fk_wallet_coin"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_coin"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="t_wallet" constraintName="fk_wallet_user"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_user"/>
+    </changeSet>
+
+    <changeSet author="" id="init-04">
+        <createTable tableName="t_withdraw">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="wallet_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="volume" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="status"
+                    remarks="int PENDING = 0;    //等待&#10;        int PROCESSING = 1; //处理中&#10;        int FINISHED = 2;   //已完成"
+                    type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_withdraw"/>
+        <createIndex indexName="idx_created_at" tableName="t_withdraw">
+            <column name="created_at"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="wallet_id" baseTableName="t_withdraw"
+                                 constraintName="fk_withdraw_wallet" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id"
+                                 referencedTableName="t_wallet"/>
+    </changeSet>
+
+    <changeSet author="" id="init-05">
+        <createTable tableName="t_wallet_log">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="wallet_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="volume" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="available_balance" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="frozen_balance" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="pending_balance" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="type" type="TINYINT(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="biz_id" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_wallet_log"/>
+        <createIndex indexName="idx_biz_id" tableName="t_wallet_log">
+            <column name="biz_id"/>
+        </createIndex>
+        <createIndex indexName="idx_created_at" tableName="t_wallet_log">
+            <column name="created_at"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="wallet_id" baseTableName="t_wallet_log"
+                                 constraintName="fk_wallet-log_wallet" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id"
+                                 referencedTableName="t_wallet"/>
+    </changeSet>
+
+    <changeSet author="" id="init-10">
+        <createTable tableName="t_market">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="base_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="true" name="active" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_market"/>
+        <addUniqueConstraint columnNames="name" constraintName="uk_name" tableName="t_market"/>
+        <addForeignKeyConstraint baseColumnNames="base_id" baseTableName="t_market" constraintName="fk_market_base"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_coin"/>
+        <addForeignKeyConstraint baseColumnNames="target_id" baseTableName="t_market" constraintName="fk_market_target"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_coin"/>
+    </changeSet>
+
+    <changeSet author="" id="init-11">
+        <createTable tableName="t_bookmark">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="market_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_bookmark"/>
+        <createIndex indexName="idx_created_at" tableName="t_bookmark">
+            <column name="created_at"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="market_id" baseTableName="t_bookmark"
+                                 constraintName="fk_bookmark_market" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id"
+                                 referencedTableName="t_market"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="t_bookmark" constraintName="fk_bookmark_user"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_user"/>
+    </changeSet>
+
+    <changeSet author="" id="init-12">
+        <createTable tableName="t_bill">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="market_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="1" name="volume" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="remain_volume" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="1" name="price" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="average_price" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="brokerage_rate" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="type" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="status"
+                    remarks="0 挂单（含部分成交）&#10;1 部分成交但已撤销&#10;2 全部成交 &#10;3 未成交过已撤销" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_bill"/>
+        <createIndex indexName="idx_created_at" tableName="t_bill">
+            <column name="created_at"/>
+        </createIndex>
+        <createIndex indexName="idx_deal" tableName="t_bill">
+            <column name="market_id"/>
+            <column name="status"/>
+            <column name="type"/>
+            <column name="price"/>
+        </createIndex>
+        <createIndex indexName="idx_my_bills" tableName="t_bill">
+            <column name="user_id"/>
+            <column name="market_id"/>
+            <column name="status"/>
+            <column name="created_at"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="market_id" baseTableName="t_bill" constraintName="fk_bill_market"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_market"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="t_bill" constraintName="fk_bill_user"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_user"/>
+    </changeSet>
+
+    <changeSet author="" id="init-13">
+        <createTable tableName="t_deal">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="market_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sell_id" remarks="卖出单" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="buy_id" remarks="买入单" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="1" name="volume" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="1" name="price" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="type" remarks="触发交易（即后挂）的单的类型" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_deal"/>
+        <createIndex indexName="idx_created_at" tableName="t_deal">
+            <column name="created_at"/>
+        </createIndex>
+        <createIndex indexName="idx_kline" tableName="t_deal">
+            <column name="market_id"/>
+            <column name="created_at"/>
+            <column name="volume"/>
+            <column name="price"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="sell_id" baseTableName="t_deal" constraintName="fk_deal_sell"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_bill"/>
+        <addForeignKeyConstraint baseColumnNames="buy_id" baseTableName="t_deal" constraintName="fk_deal_buy"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_bill"/>
+        <addForeignKeyConstraint baseColumnNames="market_id" baseTableName="t_deal" constraintName="fk_deal_market"
+                                 deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_market"/>
+    </changeSet>
+
+    <changeSet author="" id="init-14">
+        <createTable tableName="t_kline">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="market_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="high" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="low" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="volume" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_kline"/>
+        <addUniqueConstraint columnNames="market_id, type, timestamp" constraintName="uk_market_type_timestamp"
+                             tableName="t_kline"/>
+        <addForeignKeyConstraint baseColumnNames="market_id" baseTableName="t_kline"
+                                 constraintName="fk_kline_wallet" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id"
+                                 referencedTableName="t_market"/>
+    </changeSet>
+
+
+    <!-- blockchain related -->
+
+    <changeSet author="" id="init-80">
+        <createTable tableName="t_physical_wallet">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="wallet_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coin_type" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="balance" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime"/>
+            <column name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_physical_wallet"/>
+        <addUniqueConstraint columnNames="coin_type, address" constraintName="uk_address_coin-type"
+                             tableName="t_physical_wallet"/>
+        <addForeignKeyConstraint baseColumnNames="wallet_id" baseTableName="t_physical_wallet"
+                                 constraintName="fk_pysical-wallet_wallet-id" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="t_wallet"/>
+    </changeSet>
+
+    <changeSet author="" id="init-81">
+        <createTable tableName="t_btc_transaction">
+            <column name="id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="wallet_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ver" type="INT"/>
+            <column name="weight" type="INT"/>
+            <column name="block_height" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="relayed_by" type="VARCHAR(255)"/>
+            <column name="lock_time" type="BIGINT"/>
+            <column name="result" type="VARCHAR(255)"/>
+            <column name="size" type="INT"/>
+            <column name="tx_time" type="BIGINT"/>
+            <column name="tx_index" type="BIGINT"/>
+            <column name="vin_sz" type="INT"/>
+            <column name="tx_hash" type="VARCHAR(255)"/>
+            <column name="vout_sz" type="INT"/>
+            <column name="from_address" type="VARCHAR(255)"/>
+            <column name="to_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tx_value" type="VARCHAR(255)"/>
+            <column defaultValueBoolean="false" name="confirmed" type="BIT"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_btc_transaction"/>
+        <createIndex indexName="idx_to" tableName="t_btc_transaction">
+            <column name="to_address"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="wallet_id" baseTableName="t_btc_transaction"
+                                 constraintName="fk_btc_tx_wallet" deferrable="false" initiallyDeferred="false"
+                                 onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id"
+                                 referencedTableName="t_wallet"/>
+    </changeSet>
+
+    <changeSet author="" id="init-82">
+        <createTable tableName="t_eth_transaction">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tx_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="block_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="block_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_stamp" type="BIGINT"/>
+            <column name="nonce" type="INT"/>
+            <column name="transaction_index" type="INT"/>
+            <column name="from_address" type="VARCHAR(255)"/>
+            <column name="to_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tx_value" type="VARCHAR(255)"/>
+            <column name="gas" type="VARCHAR(255)"/>
+            <column name="gas_price" type="VARCHAR(255)"/>
+            <column name="is_error" type="INT"/>
+            <column name="tx_receipt_status" type="VARCHAR(255)"/>
+            <column name="input" type="LONGBLOB"/>
+            <column name="contract_address" type="VARCHAR(255)"/>
+            <column name="cumulative_gas_used" type="VARCHAR(255)"/>
+            <column name="gas_used" type="VARCHAR(255)"/>
+            <column name="confirmations" type="INT"/>
+            <column name="created_at" type="datetime"/>
+            <column name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_eth_transaction"/>
+        <addUniqueConstraint columnNames="tx_hash" constraintName="idx_hash" tableName="t_eth_transaction"/>
+        <createIndex indexName="idx_to" tableName="t_eth_transaction">
+            <column name="to_address"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="" id="init-83">
+        <createTable tableName="t_eth_erc20_transaction">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="block_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_stamp" type="BIGINT"/>
+            <column name="tx_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nonce" type="INT"/>
+            <column name="block_hash" type="VARCHAR(255)"/>
+            <column name="from_address" type="VARCHAR(255)"/>
+            <column name="contract_address" type="VARCHAR(255)"/>
+            <column name="to_address" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tx_value" type="VARCHAR(255)"/>
+            <column name="token_name" type="VARCHAR(255)"/>
+            <column name="token_symbol" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token_decimal" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_index" type="INT"/>
+            <column name="gas" type="VARCHAR(255)"/>
+            <column name="gas_price" type="VARCHAR(255)"/>
+            <column name="gas_used" type="VARCHAR(255)"/>
+            <column name="cumulative_gas_used" type="VARCHAR(255)"/>
+            <column name="input" type="LONGBLOB"/>
+            <column name="confirmations" type="INT"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="created_at" type="datetime"/>
+            <column defaultValueComputed="CURRENT_TIMESTAMP" name="modified_at" type="datetime"/>
+        </createTable>
+        <addPrimaryKey columnNames="id" constraintName="PRIMARY" tableName="t_eth_erc20_transaction"/>
+        <createIndex indexName="idx_to" tableName="t_eth_erc20_transaction">
+            <column name="to_address"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

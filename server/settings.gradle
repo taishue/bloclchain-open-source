@@ -1,0 +1,13 @@
+rootProject.name = "coinsthai-backend"
+
+include "util"
+include "pojo"
+include "model"
+include "vo"
+include "repository"
+include "service"
+include "blockchain"
+include "api"
+include "deal"
+include "schedule"
+include "notify"

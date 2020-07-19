@@ -1,0 +1,35 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$version_spring_boot")
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+//apply plugin: 'war'
+//
+//war {
+//    baseName = 'api'
+//}
+
+dependencies {
+    compile project(":service")
+    compile project(":blockchain")
+
+    compile "org.springframework.boot:spring-boot-starter-web:$version_spring_boot"
+    compile "org.springframework.boot:spring-boot-starter-thymeleaf:$version_spring_boot"
+//    compile "org.springframework.boot:spring-boot-starter-security:$version_spring_boot"
+    compile "org.springframework.boot:spring-boot-devtools:$version_spring_boot"
+    compile "io.springfox:springfox-swagger2:$version_springfox_swagger2"
+    compile "io.springfox:springfox-swagger-ui:$version_springfox_swagger2"
+
+    //compile "commons-codec:commons-codec:$version_commons_codec"
+    compile "in.clouthink.daas:daas-token:$version_daas_token"
+    compile "in.clouthink.daas:daas-audit:${version_daas_audit}"
+
+    // override
+
+//    providedRuntime "org.apache.tomcat.embed:tomcat-embed-jasper"
+}
